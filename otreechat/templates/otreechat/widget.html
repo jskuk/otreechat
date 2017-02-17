@@ -6,126 +6,131 @@
 
 
 <style>
-    .otreechat {
-        border: 1px solid #ccc;
-        padding: 5px;
-        margin: 30px 0 0 0;
-    }
-    .otreechat .messages {
-        height: 200px;
-        overflow: auto;
-        background: #eee;
-        margin: 2px 0 5px 0;
-    }
-    .otreechat .nickname {
-        display: inline-block;
-        color: #C07A36;
-        width: 150px;
-        font-weight: bold;
-    }
+.otreechat {
+    border: 1px solid #ccc;
+    padding: 5px;
+    margin: 30px 0 0 0;
+}
+.otreechat .messages {
+    height: 200px;
+    overflow: auto;
+    background: #eee;
+    margin: 2px 0 5px 0;
+}
+.otreechat .nickname {
+    display: inline-block;
+    color: #C07A36;
+    width: 150px;
+    font-weight: bold;
+}
 </style>
 
 
 <script>
-    $(function () {
+$(function () {
 
-        // helper function to escape HTML
-        var entityMap = {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;',
-          '/': '&#x2F;',
-          '`': '&#x60;',
-          '=': '&#x3D;'
-        };
+    // helper function to escape HTML
+    var entityMap = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#39;',
+      '/': '&#x2F;',
+      '`': '&#x60;',
+      '=': '&#x3D;'
+    };
 
-        function escapeHtml (string) {
-          return String(string).replace(/[&<>"'`=\/]/g, function (s) {
-            return entityMap[s];
-          });
+    function escapeHtml (string) {
+      return String(string).replace(/[&<>"'`=\/]/g, function (s) {
+        return entityMap[s];
+      });
+    }
+
+    var varsFromDjango = {{ vars_for_js }};
+    var channel = varsFromDjango.channel;
+    var participantCode = varsFromDjango.participant_code;
+    var participantID = varsFromDjango.participant_id;
+
+    var $chatWidget = $('#otreechat-' + channel);
+
+    var $messageInput = $chatWidget.find('input');
+
+    var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
+    var ws_path = ws_scheme + '://' + window.location.host + "/otreechat/" + channel + "/";
+    console.log("Connecting to " + ws_path);
+    var socket = new ReconnectingWebSocket(ws_path);
+    var $msgdiv = $chatWidget.find('.messages');
+
+    // Handle incoming messages
+    socket.onmessage = function (message) {
+
+        console.log("Got websocket message ");
+        var messages = JSON.parse(message.data);
+
+        var messagesHTML = '';
+
+        for (var i = 0; i < messages.length; i++) {
+            var chatMessage = messages[i];
+            var nickname = chatMessage.nickname;
+
+            {% comment %}
+            Show my own nickname, so I know how it will look to
+            others who read it.
+            {% endcomment %}
+            // need to use ID instead of code, for security
+            if (chatMessage.participant_id == participantID) {
+                nickname += ' (Me)';
+            }
+
+            messagesHTML += "<div class='message'>" +
+                        "<span class='nickname'>" + escapeHtml(nickname) + "</span>" +
+                        "<span class='body'>" + escapeHtml(chatMessage.body) + "</span>" +
+                        "</div>";
+
+        }
+        $msgdiv.append(messagesHTML);
+        $msgdiv.scrollTop($msgdiv.prop("scrollHeight"));
+    };
+
+    socket.onopen = function () {
+        console.log("Connected to chat socket");
+        // clear message history so we can re-populate
+        $msgdiv.empty();
+    };
+
+    socket.onclose = function () {
+        console.log("Disconnected from chat socket");
+    };
+
+    function sendMessage() {
+        var body = $messageInput.val();
+
+        if (!body) {
+            return;
         }
 
-        var $chat_widget = $('#otreechat-{{ channel }}');
-
-        var channel = "{{ channel }}";
-        var participant_id = "{{ participant.id }}";
-        var nickname = "{{ nickname|escapejs }}";
-        var $message_input = $chat_widget.find('input');
-
-        var ws_scheme = window.location.protocol == "https:" ? "wss" : "ws";
-        var ws_path = ws_scheme + '://' + window.location.host + "/otreechat/{{ channel }}/";
-        console.log("Connecting to " + ws_path);
-        var socket = new ReconnectingWebSocket(ws_path);
-        var $msgdiv = $chat_widget.find('.messages');
-
-        // Handle incoming messages
-        socket.onmessage = function (message) {
-
-            console.log("Got websocket message ");
-            var messages = JSON.parse(message.data);
-
-            for (var i = 0; i < messages.length; i++) {
-                var chat_message = messages[i];
-                var nickname = chat_message.nickname;
-
-                {% comment %}
-                Show my own nickname, so I know how it will look to
-                others who read it.
-                {% endcomment %}
-                if (chat_message.participant_id == participant_id) {
-                    nickname += ' (Me)';
-                }
-
-                var chat_message_str = "<div class='message'>" +
-                            "<span class='nickname'>" + escapeHtml(nickname) + "</span>" +
-                            "<span class='body'>" + escapeHtml(chat_message.body) + "</span>" +
-                            "</div>";
-                $msgdiv.append(chat_message_str);
-            }
-            $msgdiv.scrollTop($msgdiv.prop("scrollHeight"));
+        var data = {
+            'body': $messageInput.val(),
+            'participant_code': participantCode,
+            'channel': channel
         };
 
-        socket.onopen = function () {
-            console.log("Connected to chat socket");
-            // clear message history so we can re-populate
-            $msgdiv.empty();
-        };
+        socket.send(JSON.stringify(data));
+        $messageInput.val('');
+    }
 
-        socket.onclose = function () {
-            console.log("Disconnected from chat socket");
-        };
-
-        function send_message() {
-            var body = $message_input.val();
-
-            if (!body) {
-                return;
-            }
-
-            var data = {
-                'body': $message_input.val(),
-                'participant_id': participant_id,
-                'channel': channel,
-                'nickname': nickname
-            };
-
-            socket.send(JSON.stringify(data));
-            $message_input.val('');
-        }
-
-        $chat_widget.find('button').click(function(e) {
-            send_message();
-        });
-
-        // pressing "enter" in the message box should submit a message,
-        // NOT the page's form
-        $message_input.on('keypress', function (e) {
-            if (e.which == 13) {
-                e.preventDefault();
-                send_message();
-            }
-        });
+    $chatWidget.find('button').click(function(e) {
+        sendMessage();
     });
+
+    // pressing "enter" in the message box should submit a message,
+    // NOT the page's form
+    $messageInput.on('keypress', function (e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            sendMessage();
+        }
+    });
+});
 </script>

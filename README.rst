@@ -62,17 +62,26 @@ You can pass optional parameters ``channel`` and/or ``nickname`` like this:
 
     {% chat nickname=mynickname channel=mychannel %}
 
--   ``nickname`` is the nickname that will be displayed for that user in the chat.
-    A typical usage would be ``{% chat nickname=player.role %}``.
+Nickname
+''''''''
 
--   ``channel`` is the chat room's ID, meaning that if 2 players
-    have the same ``channel``, they can chat with each other.
-    ``channel`` is not displayed in the user interface; it's just used internally.
-    Its default value is ``group.id``, meaning all players in the group can chat together.
-    You can use ``channel`` to instead scope the chat to the current page
-    or sub-division of a group, etc. (see examples below).
-    Regardless of the value of the ``channel`` argument,
-    the chat will at least be scoped to players in the same session and the same app.
+``nickname`` is the nickname that will be displayed for that user in the chat.
+A typical usage would be ``{% chat nickname=player.role %}``.
+
+Channel
+'''''''
+
+``channel`` is the chat room's ID, meaning that if 2 players
+have the same ``channel``, they can chat with each other.
+``channel`` is not displayed in the user interface; it's just used internally.
+Its default value is ``group.id``, meaning all players in the group can chat together.
+You can use ``channel`` to instead scope the chat to the current page
+or sub-division of a group, etc. (see examples below).
+Regardless of the value of the ``channel`` argument,
+the chat will at least be scoped to players in the same session and the same app.
+
+Example: chat by role
+`````````````````````
 
 Here's an example where instead of communication within a group,
 we have communication between groups based on role,
@@ -90,11 +99,34 @@ and all sellers can talk with each other.
             else:
                 return 'Buyer'
 
+        def channel_nickname(self):
+            return 'Group {} {}'.format(self.group.id_in_subsession, self.role())
+
 Then in the template:
 
 .. code-block:: html+django
 
-    {% chat nickname=player.role channel=player.role %}
+    {% chat nickname=player.channel_nickname channel=player.role %}
+
+Example: chat across rounds
+```````````````````````````
+
+If you need players to chat with players who are currently in a different round
+of the game, you can do:
+
+.. code-block:: html+django
+
+    {% chat channel=group.id_in_subsession %}
+
+Example: chat between all groups in all rounds
+``````````````````````````````````````````````
+
+If you want everyone in the session to freely chat with each other, just do:
+
+.. code-block:: html+django
+
+    {% chat channel='everyone' %}
+
 
 Styling
 ~~~~~~~
@@ -154,7 +186,11 @@ For example, this code enables 1:1 chat with every other player in the group.
     {% endfor %}
 
 
-Exporting chat logs
-~~~~~~~~~~~~~~~~~~~
+Notes
+-----
 
-Not yet implemented, coming soon
+-   Exporting of chat logs not yet implemented, coming soon
+-   Remember to put ``otreechat`` in your ``requirements_base.txt`` so you can use
+    it on the server, etc.
+
+
