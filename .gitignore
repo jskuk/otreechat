@@ -1,3 +1,5 @@
 otreechat.egg-info
 .idea
 dist
+*.pyc
+.tox/
