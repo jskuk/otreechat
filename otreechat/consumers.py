@@ -4,24 +4,30 @@ from .models import ChatMessage
 from otree.models import Participant
 import json
 
-def get_chat_group(room):
-    return 'otreechat-{}'.format(room)
+def get_chat_group(channel):
+    return 'otreechat-{}'.format(channel)
 
 from channels.generic.websockets import JsonWebsocketConsumer
 
 def msg_consumer(message):
     content = message.content
 
+    # For now, don't create a model because we
+    # don't yet have a way to export this table.
+    # currently oTree admin is not extensible.
+
+    channel = content['channel']
+    grp = get_chat_group(channel)
+
+    # list containing 1 element
+    Group(grp).send({'text': json.dumps([content])})
+
     ChatMessage.objects.create(
-        participant=Participant.objects.get(code=content['participant_code']),
-        room=content['room'],
-        message=content['message'],
+        participant=Participant.objects.get(id=content['participant_id']),
+        channel=content['channel'],
+        body=content['body'],
         nickname=content['nickname']
     )
-
-    room = content['room']
-    grp = get_chat_group(room)
-    Group(grp).send({'text': json.dumps(content)})
 
 
 class ChatConsumer(JsonWebsocketConsumer):
@@ -34,7 +40,16 @@ class ChatConsumer(JsonWebsocketConsumer):
         Called to return the list of groups to automatically add/remove
         this connection to/from.
         """
-        return [get_chat_group(kwargs['room'])]
+        return [get_chat_group(kwargs['channel'])]
+
+    def connect(self, message, **kwargs):
+        history = ChatMessage.objects.filter(
+            channel=kwargs['channel']).order_by('timestamp').values(
+                'channel', 'nickname', 'body', 'participant_id'
+        )
+
+        # Convert ValuesQuerySet to list
+        self.send(list(history))
 
     def receive(self, content, **kwargs):
         # Stick the message onto the processing queue
