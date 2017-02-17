@@ -1,6 +1,5 @@
 from django.db import models
-from otree.models import Participant, Session
-import time
+from otree.models import Participant
 
 
 class ChatMessage(models.Model):

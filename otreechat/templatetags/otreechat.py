@@ -18,14 +18,13 @@ def chat(context, *args, **kwargs):
     kwargs.setdefault('nickname', 'Player {}'.format(player.id_in_group))
 
     # prefix the channel name with session code and app name
-    context['channel'] = '{}-{}-{}'.format(
+    channel = '{}-{}-{}'.format(
         context['session'].code,
         Constants.name_in_url,
         kwargs['channel']
     )
 
     nickname = kwargs['nickname']
-    channel = context['channel']
 
     # channel name should not contain illegal chars,
     # so that it can be used in JS and URLs
@@ -46,12 +45,7 @@ def chat(context, *args, **kwargs):
         'participant_id': participant.id
     }
 
+    context['channel'] = channel
     context['vars_for_js'] = safe_json(vars_for_js)
 
     return context
-
-@register.filter(name='json_private')
-def _json(value):
-    if isinstance(value, QuerySet):
-        value = list(value)
-    return mark_safe(json.dumps(value))

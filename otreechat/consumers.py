@@ -3,11 +3,12 @@ from channels import Group, Channel
 from .models import ChatMessage, NicknameRegistration
 from otree.models.participant import Participant
 import json
+from channels.generic.websockets import JsonWebsocketConsumer
+
 
 def get_chat_group(channel):
     return 'otreechat-{}'.format(channel)
 
-from channels.generic.websockets import JsonWebsocketConsumer
 
 def msg_consumer(message):
     content = message.content
@@ -17,13 +18,10 @@ def msg_consumer(message):
     # currently oTree admin is not extensible.
 
     channel = content['channel']
-    grp = get_chat_group(channel)
+    channels_group = get_chat_group(channel)
 
     # list containing 1 element
-    # TODO: JS needs to send participant code to server,
-    # but server needs to send nickname to client
-
-
+    # it seems I can't use .get() because of idmap
     participant_id = Participant.objects.filter(code=content['participant_code']).values_list(
         'id', flat=True)[0]
 
@@ -37,7 +35,7 @@ def msg_consumer(message):
         'participant_id': participant_id
     }
 
-    Group(grp).send({'text': json.dumps([chat_message])})
+    Group(channels_group).send({'text': json.dumps([chat_message])})
 
     ChatMessage.objects.create(
         participant_id=participant_id,
