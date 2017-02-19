@@ -1,6 +1,6 @@
 from django.db import models
 from otree.models import Participant
-
+import time
 
 class ChatMessage(models.Model):
     class Meta:
@@ -14,7 +14,7 @@ class ChatMessage(models.Model):
     # call it 'body' instead of 'message' or 'content' because those terms
     # are already used by channels
     body = models.TextField()
-    timestamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.FloatField(default=time.time)
 
 
 class NicknameRegistration(models.Model):

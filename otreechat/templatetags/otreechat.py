@@ -2,9 +2,6 @@ from django import template
 register = template.Library()
 import re
 from otreechat.models import NicknameRegistration
-import json
-from django.db.models.query import QuerySet
-from django.utils.safestring import mark_safe
 from otree.api import safe_json
 
 @register.inclusion_tag('otreechat/widget.html', takes_context=True)
@@ -19,7 +16,7 @@ def chat(context, *args, **kwargs):
 
     # prefix the channel name with session code and app name
     channel = '{}-{}-{}'.format(
-        context['session'].code,
+        context['session'].id,
         Constants.name_in_url,
         kwargs['channel']
     )
@@ -39,13 +36,14 @@ def chat(context, *args, **kwargs):
         defaults={'nickname': nickname}
     )
 
+    context['channel'] = channel
+
     vars_for_js = {
         'channel': context['channel'],
         'participant_code': participant.code,
         'participant_id': participant.id
     }
 
-    context['channel'] = channel
     context['vars_for_js'] = safe_json(vars_for_js)
 
     return context

@@ -1,4 +1,4 @@
-<div class='otreechat' id='otreechat-{{ channel }}'>
+<div class='otree-chat' id='otree-chat-{{ channel }}'>
     <div class='messages'></div>
     <input size="40">
     <button type="button">Send</button>
@@ -6,18 +6,18 @@
 
 
 <style>
-.otreechat {
+.otree-chat {
     border: 1px solid #ccc;
     padding: 5px;
     margin: 30px 0 0 0;
 }
-.otreechat .messages {
+.otree-chat .messages {
     height: 200px;
     overflow: auto;
     background: #eee;
     margin: 2px 0 5px 0;
 }
-.otreechat .nickname {
+.otree-chat .nickname {
     display: inline-block;
     color: #C07A36;
     width: 150px;
@@ -52,7 +52,7 @@ $(function () {
     var participantCode = varsFromDjango.participant_code;
     var participantID = varsFromDjango.participant_id;
 
-    var $chatWidget = $('#otreechat-' + channel);
+    var $chatWidget = $('#otree-chat-' + channel);
 
     var $messageInput = $chatWidget.find('input');
 

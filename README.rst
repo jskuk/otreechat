@@ -25,6 +25,8 @@ create a file ``routing.py`` containing this:
 
 In ``settings.py``:
 
+
+
 -   Set ``CHANNEL_ROUTING = 'routing.channel_routing'`` 
     (this is the dotted path to your ``channel_routing`` variable in ``routing.py``).
 -   Add ``'otreechat'`` to ``INSTALLED_APPS``, e.g. ``INSTALLED_APPS = ['otree', 'otreechat']``  
@@ -125,8 +127,9 @@ If you want everyone in the session to freely chat with each other, just do:
 
 .. code-block:: html+django
 
-    {% chat channel='everyone' %}
+    {% chat channel=1 %}
 
+(The number 1 is not significant; all that matters is that it's the same for everyone.)
 
 Styling
 ~~~~~~~
@@ -139,14 +142,23 @@ e.g.:
     {% chat %}
 
     <style>
-        .otreechat .messages {
+        .otree-chat .messages {
             height: 400px;
         }
-        .otreechat .nickname {
+        .otree-chat .nickname {
             color: #0000FF;
             font-weight: bold;
         }
     </style>
+
+You can also customize the appearance by putting it inside a ``<div>``
+and styling that parent ``<div>``. For example, to set the width:
+
+.. code-block:: html+django
+
+    <div style="width: 400px">
+        {% chat nickname=player.chat_nickname channel=chat.channel %}
+    </div>
 
 Multiple chats on a page
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -186,10 +198,45 @@ For example, this code enables 1:1 chat with every other player in the group.
     {% endfor %}
 
 
+Exporting CSV of chat logs
+--------------------------
+
+Create a file ``urls.py`` in your project (same folder as ``settings.py``),
+with these contents:
+
+.. code-block:: python
+
+    from django.conf.urls import url
+    from otree.urls import urlpatterns
+    import otreechat.views
+
+    urlpatterns.append(url(r'^export_chat/$', otreechat.views.export))
+
+Then add this to ``settings.py``:
+
+.. code-block:: python
+
+    ROOT_URLCONF = 'urls'
+
+Then, your chat data will be downloadable from the url ``/export_chat``, e.g.
+`http://localhost:8000/export_chat <http://localhost:8000/export_chat>`__.
+
+Upgrading
+---------
+
+.. code-block::
+
+    pip install -U otreechat
+
+Feedback
+--------
+
+Please send any feedback/opinions to chris@otree.org,
+for example to suggest an improvement to the widget's appearance.
+
 Notes
 -----
 
--   Exporting of chat logs not yet implemented, coming soon
 -   Remember to put ``otreechat`` in your ``requirements_base.txt`` so you can use
     it on the server, etc.
 
