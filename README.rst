@@ -10,28 +10,20 @@ Installation
 
 (Assuming you already have an oTree project.)
 
+**REQUIRES oTree version 1.2 or higher (not yet released as at 2017-2-21)**
+
 .. code-block::
 
     pip install -U otreechat
 
-In your project root, next to ``settings.py``,
-create a file ``routing.py`` containing this:
-
-.. code-block:: python
-
-    from otree.channels.routing import channel_routing
-    import otreechat.routing
-    channel_routing += otreechat.routing.channel_routing
-
-In ``settings.py``:
-
-
-
--   Set ``CHANNEL_ROUTING = 'routing.channel_routing'`` 
-    (this is the dotted path to your ``channel_routing`` variable in ``routing.py``).
--   Add ``'otreechat'`` to ``INSTALLED_APPS``, e.g. ``INSTALLED_APPS = ['otree', 'otreechat']``  
+In ``settings.py``, add ``'otreechat'`` to ``INSTALLED_APPS``,
+e.g. ``INSTALLED_APPS = ['otree', 'otreechat']``
 
 Then run ``otree resetdb``.
+
+(Also remember to put ``otreechat`` in your ``requirements_base.txt``,
+so it gets installed on the server, etc.)
+
 
 Usage
 -----
@@ -201,25 +193,7 @@ For example, this code enables 1:1 chat with every other player in the group.
 Exporting CSV of chat logs
 --------------------------
 
-Create a file ``urls.py`` in your project (same folder as ``settings.py``),
-with these contents:
-
-.. code-block:: python
-
-    from django.conf.urls import url
-    from otree.urls import urlpatterns
-    import otreechat.views
-
-    urlpatterns.append(url(r'^export_chat/$', otreechat.views.export))
-
-Then add this to ``settings.py``:
-
-.. code-block:: python
-
-    ROOT_URLCONF = 'urls'
-
-Then, your chat data will be downloadable from the url ``/export_chat``, e.g.
-`http://localhost:8000/export_chat <http://localhost:8000/export_chat>`__.
+The chat logs download link will appear on oTree's regular data export page.
 
 Upgrading
 ---------
@@ -234,10 +208,5 @@ Feedback
 Please send any feedback/opinions to chris@otree.org,
 for example to suggest an improvement to the widget's appearance.
 
-Notes
------
-
--   Remember to put ``otreechat`` in your ``requirements_base.txt`` so you can use
-    it on the server, etc.
 
 

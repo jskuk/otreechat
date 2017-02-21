@@ -1,38 +1,39 @@
 from otreechat.models import ChatMessage
 from django.http import HttpResponse
-from django.contrib.auth.decorators import login_required
 import csv
 import datetime
-from django.conf import settings
+import vanilla
 
-def export(request):
+class Export(vanilla.View):
 
-    response = HttpResponse(content_type='text/csv')
-    response['Content-Disposition'] = 'attachment; filename="{}"'.format(
-        'Chat messages (accessed {}).csv'.format(
-            datetime.date.today().isoformat()
+    url_name = 'otreechat_export'
+    url_pattern = '^otreechat_export/$'
+    display_name = 'oTree chat export'
+
+    def get(request, *args, **kwargs):
+
+        response = HttpResponse(content_type='text/csv')
+        response['Content-Disposition'] = 'attachment; filename="{}"'.format(
+            'Chat messages (accessed {}).csv'.format(
+                datetime.date.today().isoformat()
+            )
         )
-    )
 
-    column_names = [
-        'participant__session__code',
-        'participant__session_id',
-        'participant__id_in_session',
-        'participant__code',
-        'channel',
-        'nickname',
-        'body',
-        'timestamp',
-    ]
+        column_names = [
+            'participant__session__code',
+            'participant__session_id',
+            'participant__id_in_session',
+            'participant__code',
+            'channel',
+            'nickname',
+            'body',
+            'timestamp',
+        ]
 
-    rows = ChatMessage.objects.order_by('timestamp').values_list(*column_names)
+        rows = ChatMessage.objects.order_by('timestamp').values_list(*column_names)
 
-    writer = csv.writer(response)
-    writer.writerows([column_names])
-    writer.writerows(rows)
+        writer = csv.writer(response)
+        writer.writerows([column_names])
+        writer.writerows(rows)
 
-    return response
-
-
-if settings.AUTH_LEVEL in {'DEMO', 'STUDY'}:
-    export = login_required(export)
+        return response
