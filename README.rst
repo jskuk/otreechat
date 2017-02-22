@@ -10,11 +10,16 @@ Installation
 
 (Assuming you already have an oTree project.)
 
-**REQUIRES oTree version 1.2 or higher (not yet released as at 2017-2-21)**
+Upgrade oTree-core (version 1.2 or higher required):
+
+.. code-block::
+    pip3 install -U otree-core
+
+Install otreechat:
 
 .. code-block::
 
-    pip install -U otreechat
+    pip3 install -U otreechat
 
 In ``settings.py``, add ``'otreechat'`` to ``INSTALLED_APPS``,
 e.g. ``INSTALLED_APPS = ['otree', 'otreechat']``
@@ -24,17 +29,17 @@ Then run ``otree resetdb``.
 (Also remember to put ``otreechat`` in your ``requirements_base.txt``,
 so it gets installed on the server, etc.)
 
-
 Usage
 -----
 
 Basic usage
 ~~~~~~~~~~~
 
-Add this to the top of your template:
+Add ``{% load otreechat %}`` to the top of your template, e.g.:
 
 .. code-block:: html+django
 
+    {% load staticfiles otree_tags %}
     {% load otreechat %}
 
 Then wherever you want a chatbox in the template, use:
@@ -198,6 +203,10 @@ The chat logs download link will appear on oTree's regular data export page.
 Upgrading
 ---------
 
+During Februrary/March 2017, this package will be upgraded frequently
+(e.g. to fix performance issues),
+so you should upgrade frequently as well:
+
 .. code-block::
 
     pip install -U otreechat
@@ -207,6 +216,3 @@ Feedback
 
 Please send any feedback/opinions to chris@otree.org,
 for example to suggest an improvement to the widget's appearance.
-
-
-
