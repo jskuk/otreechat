@@ -8,17 +8,11 @@ This is an early beta version and subject to changes/improvements!
 Installation
 ------------
 
-(Assuming you already have an oTree project.)
-
-Upgrade oTree-core (version 1.2 or higher required):
+(Requires otree-core >= 1.2)
 
 .. code-block::
+
     pip3 install -U otree-core
-
-Install otreechat:
-
-.. code-block::
-
     pip3 install -U otreechat
 
 In ``settings.py``, add ``'otreechat'`` to ``INSTALLED_APPS``,
