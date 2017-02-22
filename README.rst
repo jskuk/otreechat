@@ -92,14 +92,14 @@ and all sellers can talk with each other.
             else:
                 return 'Buyer'
 
-        def channel_nickname(self):
+        def chat_nickname(self):
             return 'Group {} {}'.format(self.group.id_in_subsession, self.role())
 
 Then in the template:
 
 .. code-block:: html+django
 
-    {% chat nickname=player.channel_nickname channel=player.role %}
+    {% chat nickname=player.chat_nickname channel=player.role %}
 
 Example: chat across rounds
 ```````````````````````````
