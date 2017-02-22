@@ -53,7 +53,7 @@ You can pass optional parameters ``channel`` and/or ``nickname`` like this:
 
 .. code-block:: html+django
 
-    {% chat nickname=mynickname channel=mychannel %}
+    {% chat nickname="abc" channel="123" %}
 
 Nickname
 ''''''''
@@ -148,7 +148,7 @@ and styling that parent ``<div>``. For example, to set the width:
 .. code-block:: html+django
 
     <div style="width: 400px">
-        {% chat nickname=player.chat_nickname channel=chat.channel %}
+        {% chat %}
     </div>
 
 Multiple chats on a page
