@@ -1,0 +1,2 @@
+recursive-include otreechat/templates *
+include README.rst

@@ -20,8 +20,8 @@ e.g. ``INSTALLED_APPS = ['otree', 'otreechat']``
 
 Then run ``otree resetdb``.
 
-(Also remember to put ``otreechat`` in your ``requirements_base.txt``,
-so it gets installed on the server, etc.)
+For installation on your server, your ``requirements_base.txt`` should
+contain ``otreechat`` as well as ``otree-core>=1.2.0`` (or higher, etc).
 
 Usage
 -----
